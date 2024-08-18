@@ -5,22 +5,12 @@ public class HTMLToMarkdownConverter {
     
     public func convert(_ html: String) -> String {
         var markdown = html
-        
-        // Convert headers
         markdown = convertHeaders(markdown)
-        
-        // Convert bold and italic
-        markdown = convertBoldAndItalic(markdown)
-        
-        // Convert links
+        markdown = convertBold(markdown)
+        markdown = convertItalic(markdown)
         markdown = convertLinks(markdown)
-        
-        // Convert lists
         markdown = convertLists(markdown)
-        
-        // Remove any remaining HTML tags
         markdown = removeHTMLTags(markdown)
-        
         return markdown
     }
     
@@ -34,9 +24,14 @@ public class HTMLToMarkdownConverter {
         return result
     }
     
-    private func convertBoldAndItalic(_ text: String) -> String {
+    private func convertBold(_ text: String) -> String {
         var result = text
         result = result.replacingOccurrences(of: "<b>(.*?)</b>", with: "**$1**", options: .regularExpression)
+        return result
+    }
+    
+    private func convertItalic(_ text: String) -> String {
+        var result = text
         result = result.replacingOccurrences(of: "<i>(.*?)</i>", with: "*$1*", options: .regularExpression)
         return result
     }
@@ -48,13 +43,23 @@ public class HTMLToMarkdownConverter {
     
     private func convertLists(_ text: String) -> String {
         var result = text
-        // Unordered lists
-        result = result.replacingOccurrences(of: "<ul>(.*?)</ul>", with: "$1", options: [.regularExpression])
-        result = result.replacingOccurrences(of: "<li>(.*?)</li>", with: "- $1\n", options: .regularExpression)
         
-        // Ordered lists
-        result = result.replacingOccurrences(of: "<ol>(.*?)</ol>", with: "$1", options: [.regularExpression])
-        result = result.replacingOccurrences(of: "<li>(.*?)</li>", with: "1. $1\n", options: .regularExpression)
+        // Convert unordered lists
+        while let range = result.range(of: "<ul>.*?</ul>", options: .regularExpression) {
+            let ulContent = String(result[range])
+            let convertedUl = ulContent.replacingOccurrences(of: "<li>(.*?)</li>", with: "- $1\n", options: .regularExpression)
+            result = result.replacingCharacters(in: range, with: convertedUl)
+        }
+        
+        // Convert ordered lists
+        while let range = result.range(of: "<ol>.*?</ol>", options: .regularExpression) {
+            let olContent = String(result[range])
+            let convertedOl = olContent.replacingOccurrences(of: "<li>(.*?)</li>", with: "1. $1\n", options: .regularExpression)
+            result = result.replacingCharacters(in: range, with: convertedOl)
+        }
+        
+        // Remove remaining list tags
+        result = result.replacingOccurrences(of: "</?[ou]l>", with: "", options: .regularExpression)
         
         return result
     }
