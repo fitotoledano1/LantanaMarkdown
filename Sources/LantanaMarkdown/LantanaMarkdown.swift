@@ -36,8 +36,8 @@ public class HTMLToMarkdownConverter {
     
     private func convertBoldAndItalic(_ text: String) -> String {
         var result = text
-        result = result.replacingOccurrences(of: "<strong>(.*?)</strong>", with: "**$1**", options: .regularExpression)
-        result = result.replacingOccurrences(of: "<em>(.*?)</em>", with: "*$1*", options: .regularExpression)
+        result = result.replacingOccurrences(of: "<b>(.*?)</b>", with: "**$1**", options: .regularExpression)
+        result = result.replacingOccurrences(of: "<i>(.*?)</i>", with: "*$1*", options: .regularExpression)
         return result
     }
     
